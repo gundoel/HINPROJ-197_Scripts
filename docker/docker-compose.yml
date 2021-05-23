@@ -1,0 +1,38 @@
+version: '3.7'
+# https://www.baeldung.com/spring-boot-postgresql-docker
+services:
+  app:
+    image: 'uam:latest'
+    build:
+      context: .
+    container_name: uam
+    depends_on:
+      - postgres
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/postgres?currentSchema=tools_taarisi3
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+    ports:
+      - '8080:8080'
+  postgres:
+    image: postgres:13.1
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    logging:
+      options:
+        max-size: 10m
+        max-file: "3"
+    ports:
+      - '5432:5432'
+    volumes:
+      - postgres-data:/var/lib/postgresql/data #datenhaltung auf volume auslagern, damit daten jeweils nicht geloescht werden
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql #datenbank initialisieren mit schema etc.
+
+volumes:
+  postgres-data:
+    name: postgres-data
+    
+  
